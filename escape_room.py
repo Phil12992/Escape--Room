@@ -1,165 +1,94 @@
 import streamlit as st
 
-st.set_page_config(page_title="🌺 Ägyptischer Escape Room", page_icon="🛡️")
+st.set_page_config(page_title="Ägyptischer Escape Room", page_icon="🛡️")
+st.title("🏺 Ägyptischer Escape Room")
 
-st.title(":classical_building: Ägyptischer Escape Room")
-st.markdown("""
-Du bist in einer alten Pyramide gefangen. Um zu entkommen, musst du in jedem Raum drei Rätsel lösen.  
-Gib bei jeder Frage eine Antwort ein. Die richtigen Antworten ergeben zusammen einen 3-stelligen Code,  
-den du am Ende des Raums eingeben musst, um die Tür zu öffnen und in den nächsten Raum zu gelangen.
-""")
-
-# Hilfsfunktion: Bild anzeigen (aus dem Ordner "bilder")
-def zeige_bild(pfad, alt_text="Bild"):
-    st.image(pfad, caption=alt_text)
-
-# Räume und ihre Fragen + Antwort-Schlüssel (Schlüsselwörter und jeweilige Ziffer)
 raeume = {
     1: {
-        "name": "🏛️ Raum 1 – Halle der Prüfungen",
+        "name": "Raum 1 – Die Halle der Prüfungen",
         "fragen": [
             "Wie heißt der Sonnengott im alten Ägypten?",
-            "Wie viele Pyramiden stehen in Gizeh?",
+            "Wie viele große Pyramiden gibt es in Gizeh?",
             "Wie heißt das altägyptische Buch der Toten?"
         ],
-        "antworten": {
-            "sonnengott": "3",  # z.B. "Ra" oder "Re" -> "sonnengott"
-            "3": "3",  # wenn jemand "ra" schreibt
-            "pyramiden": "7",   # 3 große Pyramiden + 4 kleine
-            "gizeh": "7",
-            "sieben": "7",
-            "buch der toten": "9",
-            "totenbuch": "9",
-            "buch": "9"
-        },
-        "code": "379",
-        "bild": "bilder/pyramide.jpg"
+        "antworten": [
+            {"ra", "re", "sonnengott"},   # für erste Frage
+            {"3", "drei"},                # zweite Frage
+            {"totenbuch", "buch der toten"} # dritte Frage
+        ],
+        "code": "379"
     },
     2: {
-        "name": "🏺 Raum 2 – Grabkammer der Schatten",
+        "name": "Raum 2 – Grabkammer der Schatten",
         "fragen": [
             "Welches Tier steht im alten Ägypten für Wiedergeburt?",
             "Woraus wurden die meisten Schriftrollen hergestellt?",
             "Welches Auge symbolisierte Schutz?"
         ],
-        "antworten": {
-            "skarabäus": "5",
-            "papyrus": "3",
-            "hieroglyphe": "2",
-            "horus": "8",
-            "auge des horus": "8",
-            "auge": "8"
-        },
-        "code": "538",
-        "bild": "bilder/grabkammer.jpg"
+        "antworten": [
+            {"skarabäus"},
+            {"papyrus"},
+            {"horus", "auge des horus"}
+        ],
+        "code": "538"
     },
     3: {
-        "name": "🪞 Raum 3 – Die Halle der Spiegel",
+        "name": "Raum 3 – Die Halle der Spiegel",
         "fragen": [
             "Was wird im Totengericht mit dem Herzen verglichen?",
             "Wer ist der Gott der Weisheit?",
             "Wie öffnete man im alten Ägypten Grabkammern?"
         ],
-        "antworten": {
-            "feder": "4",
-            "herz": "4",
-            "thot": "3",
-            "weisheit": "3",
-            "siegelbruch": "8",
-            "siegel": "8",
-            "opfergabe": "9"
-        },
-        "code": "438",
-        "bild": "bilder/spiegelhalle.jpg"
-    },
-    4: {
-        "name": "🌪 Raum 4 – Kammer der Elemente",
-        "fragen": [
-            "Welches Element symbolisiert Macht?",
-            "Womit segelten die alten Ägypter auf dem Nil?",
-            "Welcher Fluss war der wichtigste in Ägypten?"
+        "antworten": [
+            {"feder"},
+            {"thot"},
+            {"siegelbruch", "opfergabe"}
         ],
-        "antworten": {
-            "feuer": "6",
-            "wind": "3",
-            "nil": "4",
-            "wasser": "2",
-            "boot": "3",
-            "segel": "3"
-        },
-        "code": "634",
-        "bild": "bilder/elemente.jpg"
-    },
-    5: {
-        "name": "🌌 Raum 5 – Halle der Sterne",
-        "fragen": [
-            "Welches Sternbild war im alten Ägypten heilig?",
-            "Wozu dienten Sternkarten?",
-            "Wer war die ägyptische Himmelsgöttin?"
-        ],
-        "antworten": {
-            "orion": "3",
-            "navigation": "2",
-            "nut": "5",
-            "stern": "2",
-            "planung": "4",
-            "maat": "8",
-            "himmlisch": "5"
-        },
-        "code": "325",
-        "bild": "bilder/sterne.jpg"
+        "code": "439"
     }
 }
 
-# Session-State zur Raumsteuerung
 if "aktueller_raum" not in st.session_state:
     st.session_state.aktueller_raum = 1
 
-aktueller_raum = st.session_state.aktueller_raum
+raum_nr = st.session_state.aktueller_raum
 
-# Funktion zum Prüfen der Antworten und Bildung des Codes
-def berechne_code(eingaben, antworten):
+st.header(raeume[raum_nr]["name"])
+
+antworten_user = []
+
+for i, frage in enumerate(raeume[raum_nr]["fragen"]):
+    antwort = st.text_input(f"Frage {i+1}: {frage}", key=f"raum{raum_nr}_frage{i}")
+    antworten_user.append(antwort.strip().lower())
+
+def pruefe_antworten(user_antworten, richtige_antworten):
     code = ""
-    for eingabe in eingaben:
-        ziffer = "0"  # Default für falsche Antwort
-        for schluesselwort, zahl in antworten.items():
-            if schluesselwort in eingabe.lower():
-                ziffer = zahl
-                break
-        code += ziffer
-    return code
-
-def spielraum(raum_nr):
-    raum = raeume[raum_nr]
-    st.header(raum["name"])
-
-    # Bild anzeigen, falls vorhanden
-    try:
-        zeige_bild(raum["bild"], alt_text=raum["name"])
-    except Exception:
-        pass  # Bild kann fehlen
-
-    eingaben = []
-    for i, frage in enumerate(raum["fragen"]):
-        eingabe = st.text_input(frage, key=f"raum{raum_nr}_frage{i}")
-        eingaben.append(eingabe.strip())
-
-    code_berechnet = berechne_code(eingaben, raum["antworten"])
-
-    code_eingabe = st.text_input("Gib hier den 3-stelligen Türcode ein:", key=f"raum{raum_nr}_codeeingabe")
-
-    if st.button("Code prüfen", key=f"raum{raum_nr}_button"):
-        if code_eingabe == raum["code"]:
-            st.success("✅ Die Tür öffnet sich! Du kannst weitergehen.")
-            st.session_state.aktueller_raum += 1
+    for ua, ra in zip(user_antworten, richtige_antworten):
+        if any(schluesselwort in ua for schluesselwort in ra):
+            # Wenn richtig, eine Ziffer aus der Reihenfolge 3,7,9,5,3,8... nehmen (nur Beispiel)
+            # Hier einfach 3,7,9 für Raum 1, 5,3,8 für Raum 2 etc. (hart kodiert)
+            pass
         else:
-            st.error(f"❌ Falscher Code. Dein Code basierend auf deinen Antworten ist: {code_berechnet}")
-            st.info("Überprüfe deine Antworten und versuche es erneut.")
+            return None  # mindestens eine Antwort falsch
+    # Wenn alle richtig, Code aus raum info zurückgeben
+    return raeume[raum_nr]["code"]
 
-# Hauptspielablauf
-if aktueller_raum <= len(raeume):
-    spielraum(aktueller_raum)
-else:
+code_versuch = st.text_input("Gib den 3-stelligen Türcode ein:", key=f"raum{raum_nr}_codeeingabe")
+
+if st.button("Tür öffnen"):
+    code_errechnet = pruefe_antworten(antworten_user, raeume[raum_nr]["antworten"])
+    if code_errechnet is None:
+        st.error("Mindestens eine Antwort ist falsch. Überprüfe deine Eingaben.")
+    else:
+        if code_versuch == code_errechnet:
+            st.success("✅ Die Tür öffnet sich! Weiter zum nächsten Raum.")
+            st.session_state.aktueller_raum += 1
+            st.experimental_rerun()
+        else:
+            st.error("❌ Falscher Code. Versuch es noch einmal.")
+
+if st.session_state.aktueller_raum > len(raeume):
     st.balloons()
-    st.success("🎉 Herzlichen Glückwunsch! Du hast den ägyptischen Escape Room erfolgreich gemeistert!")
+    st.success("🎉 Glückwunsch! Du hast alle Räume des ägyptischen Escape Rooms erfolgreich gelöst!")
+
 
