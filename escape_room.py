@@ -1,87 +1,123 @@
 import streamlit as st
+from PIL import Image
 
-st.set_page_config(page_title="🌺 Ägyptischer Escape Room", page_icon="🛡️")
+st.set_page_config(page_title="🧩 Ägyptischer Escape Room", page_icon="🏺")
 
-st.title(":classical_building: Ägyptischer Escape Room")
+st.title("🏺 Ägyptischer Escape Room – Gefangen in der Pyramide")
 
 st.markdown("""
-Willkommen im mystischen Escape Room des alten Ägyptens.  
-In jedem der 5 Räume erwarten dich drei Prüfungen.  
-Wähle in jeder Prüfung die **richtige Antwort** – sie ergibt eine **Ziffer**.  
-Setze am Ende alle drei Ziffern zum **Türcode** zusammen.
+Du bist in einer uralten ägyptischen Pyramide gefangen.  
+Jeder Raum ist mit drei Prüfungen versehen – beantworte sie korrekt.  
+Jede richtige Antwort ergibt eine **Ziffer**.  
+Setze die drei Ziffern zu einem **Türcode** zusammen, um weiterzukommen.
+
+⚠️ Du erfährst nicht sofort, ob deine Antworten richtig sind.  
+Nur der Türcode verrät dir, ob du bereit bist, weiterzugehen!
 """)
 
-# ============================
-# Hilfsfunktionen
-# ============================
-def pruefung(name, frage, antworten, key):
-    with st.expander(name):
-        st.markdown(frage)
-        return st.radio("Wähle eine Antwort:", antworten, key=key)
+# Hilfsfunktion zum Anzeigen eines Bildes (optional)
+def zeige_bild(pfad, beschreibung=""):
+    try:
+        img = Image.open(pfad)
+        st.image(img, caption=beschreibung, use_column_width=True)
+    except:
+        pass  # Ignoriere Fehler, wenn Bild fehlt
 
-def pruefe_code(eingabe, korrekt, erfolg_text):
-    if eingabe == korrekt:
-        st.success(erfolg_text)
-        st.balloons()
-        return True
-    else:
-        st.error("❌ Falscher Code. Versuche es erneut.")
-        return False
+# Hilfsfunktion für einen Raum mit 3 Fragen
+def raum(nr, titel, fragen, antworten, code, sichtbar):
+    if sichtbar:
+        st.header(f"🏛️ Raum {nr} – {titel}")
+        user_loesungen = []
+        for i, frage in enumerate(fragen):
+            user_input = st.text_input(frage, key=f"raum{nr}_frage{i+1}")
+            user_loesungen.append(user_input.strip().lower())
 
-# ============================
-# Raum 1: Halle der Prüfungen
-# ============================
-st.header("🏛️ Raum 1 – Die Halle der Prüfungen")
-a1 = pruefung("📜 Prüfung 1", "**Was symbolisiert der Gott Horus?**", ["1 – Gott des Jenseits", "4 – Gott des Himmels", "7 – Gott der Unterwelt"], "r1_q1")
-a2 = pruefung("🦂 Prüfung 2", "**Wie nennt man die ägyptische Bilderschrift?**", ["2 – Papyrosen", "3 – Hieroglyphen", "8 – Demotisch"], "r1_q2")
-a3 = pruefung("🔺 Prüfung 3", "**Wozu dienten die großen Pyramiden?**", ["5 – Observatorien", "6 – Grabstätten", "9 – Getreidespeicher"], "r1_q3")
-r1_code = st.text_input("🔐 Türcode für Raum 1:", max_chars=3, key="r1_code")
-if st.button("✅ Code prüfen für Raum 1"):
-    pruefe_code(r1_code, "436", "🔓 Die Tür gleitet zur Seite. Du betrittst Raum 2.")
+        nutzer_code = st.text_input(f"🔐 Türcode für Raum {nr} eingeben:", max_chars=10, key=f"code_raum{nr}")
+        if st.button(f"✅ Code prüfen für Raum {nr}", key=f"button_raum{nr}"):
+            if nutzer_code == code:
+                st.success(f"✅ Der Steinmechanismus rumort... Die Tür zu Raum {nr + 1} öffnet sich!")
+                st.session_state[f"raum{nr+1}_offen"] = True
+            else:
+                st.error("❌ Der Mechanismus verweigert den Dienst. Versuche es erneut.")
 
-# ============================
-# Raum 2: Grabkammer der Schatten
-# ============================
-st.header("🏺 Raum 2 – Die Grabkammer der Schatten")
-b1 = pruefung("🐍 Prüfung 1", "**Welches Tier steht für Wiedergeburt?**", ["1 – Krokodil", "5 – Skarabäus", "7 – Katze"], "r2_q1")
-b2 = pruefung("🧱 Prüfung 2", "**Welches Material nutzten die Ägypter für Schriftrollen?**", ["3 – Papyrus", "6 – Ton", "9 – Leder"], "r2_q2")
-b3 = pruefung("👁 Prüfung 3", "**Wessen Auge symbolisierte Schutz?**", ["2 – Anubis", "4 – Osiris", "8 – Horus"], "r2_q3")
-r2_code = st.text_input("🔐 Türcode für Raum 2:", max_chars=3, key="r2_code")
-if st.button("✅ Code prüfen für Raum 2"):
-    pruefe_code(r2_code, "538", "🔓 Schatten lösen sich. Der Weg zu Raum 3 ist frei.")
+# Initialisiere Sitzungsstatus
+if "raum2_offen" not in st.session_state:
+    for i in range(2, 7):
+        st.session_state[f"raum{i}_offen"] = False
 
-# ============================
-# Raum 3: Die Halle der Spiegel
-# ============================
-st.header("🪞 Raum 3 – Die Halle der Spiegel")
-c1 = pruefung("⚖️ Prüfung 1", "**Was wiegt das Herz der Verstorbenen in der Unterwelt?**", ["2 – Mehr als eine Feder", "4 – Gleich viel wie die Feder", "6 – Weniger als eine Feder"], "r3_q1")
-c2 = pruefung("🔊 Prüfung 2", "**Wer ist der Gott der Weisheit?**", ["3 – Thot", "5 – Bastet", "7 – Seth"], "r3_q2")
-c3 = pruefung("🔓 Prüfung 3", "**Wie öffnete man Grabkammern?**", ["1 – Mit einem Goldcode", "8 – Mit einem Siegelbruch", "9 – Mit einer Opfergabe"], "r3_q3")
-r3_code = st.text_input("🔐 Türcode für Raum 3:", max_chars=3, key="r3_code")
-if st.button("✅ Code prüfen für Raum 3"):
-    pruefe_code(r3_code, "438", "🔓 Die Spiegel verschwinden – du kannst Raum 4 betreten.")
+# Raum 1
+raum(
+    1,
+    "Grabkammer des Anubis",
+    [
+        "Frage 1: Wie hieß der Sonnengott im alten Ägypten?",
+        "Frage 2: Wie viele Pyramiden stehen in Gizeh?",
+        "Frage 3: Wie nennt man das altägyptische Buch der Toten?"
+    ],
+    None,
+    code="379",
+    sichtbar=True
+)
 
-# ============================
-# Raum 4: Kammer der Elemente
-# ============================
-st.header("🌪 Raum 4 – Die Kammer der Elemente")
-d1 = pruefung("🔥 Prüfung 1", "**Welches Element symbolisiert Macht?**", ["2 – Wasser", "6 – Feuer", "7 – Sand"], "r4_q1")
-d2 = pruefung("💨 Prüfung 2", "**Womit segelten ägyptische Boote?**", ["1 – Sonnenenergie", "3 – Wind", "5 – Kamele"], "r4_q2")
-d3 = pruefung("🌊 Prüfung 3", "**Welcher Fluss war heilig?**", ["4 – Nil", "8 – Tigris", "9 – Euphrat"], "r4_q3")
-r4_code = st.text_input("🔐 Türcode für Raum 4:", max_chars=3, key="r4_code")
-if st.button("✅ Code prüfen für Raum 4"):
-    pruefe_code(r4_code, "634", "🔓 Die vier Elemente beruhigen sich – Raum 5 liegt vor dir.")
+# Raum 2
+raum(
+    2,
+    "Kammer des Skarabäus",
+    [
+        "Frage 1: Welches Tier steht in Ägypten für Wiedergeburt?",
+        "Frage 2: Wie viele Teile hatte die Seele im ägyptischen Glauben?",
+        "Frage 3: Welches Gestein nutzten die Ägypter für Statuen (z. B. Ramses)?"
+    ],
+    None,
+    code="521",
+    sichtbar=st.session_state["raum2_offen"]
+)
 
-# ============================
-# Raum 5: Halle der Sterne
-# ============================
-st.header("🌌 Raum 5 – Die Halle der Sterne")
-e1 = pruefung("🌠 Prüfung 1", "**Welches Sternbild war heilig für die Ägypter?**", ["3 – Orion", "6 – Stier", "9 – Jungfrau"], "r5_q1")
-e2 = pruefung("🔭 Prüfung 2", "**Was war die Funktion der Sternkarten?**", ["2 – Navigation", "4 – Ackerplanung", "7 – Grabgestaltung"], "r5_q2")
-e3 = pruefung("🌙 Prüfung 3", "**Wer war die Himmelsgöttin?**", ["1 – Isis", "5 – Nut", "8 – Maat"], "r5_q3")
-r5_code = st.text_input("🔐 Türcode für Raum 5:", max_chars=3, key="r5_code")
-if st.button("✅ Code prüfen für Raum 5"):
-    if pruefe_code(r5_code, "324", "🎉 Du hast alle Prüfungen des Tempels bestanden!"):
-        st.balloons()
-        st.success("🏆 Glückwunsch! Du hast den ägyptischen Escape Room gemeistert.")
+# Raum 3
+raum(
+    3,
+    "Halle der Prüfungen",
+    [
+        "Frage 1: Womit wurde der Eingang zu Gräbern versiegelt?",
+        "Frage 2: Wie viele Götter saßen über das Herz der Toten zu Gericht?",
+        "Frage 3: Wie nennt man das Auge, das Schutz spendet?"
+    ],
+    None,
+    code="846",
+    sichtbar=st.session_state["raum3_offen"]
+)
+
+# Raum 4
+raum(
+    4,
+    "Kammer der Elemente",
+    [
+        "Frage 1: Welches Element galt als zerstörerisch und reinigend zugleich?",
+        "Frage 2: Welcher Fluss war für das Leben der Ägypter zentral?",
+        "Frage 3: Was symbolisierte das Ank-Zeichen?"
+    ],
+    None,
+    code="674",
+    sichtbar=st.session_state["raum4_offen"]
+)
+
+# Raum 5
+raum(
+    5,
+    "Halle der Sterne",
+    [
+        "Frage 1: Welcher Stern oder welches Sternbild galt als besonders heilig?",
+        "Frage 2: Welche Göttin war mit dem Nachthimmel verbunden?",
+        "Frage 3: Was diente den Ägyptern zur Zeitmessung nachts?"
+    ],
+    None,
+    code="382",
+    sichtbar=st.session_state["raum5_offen"]
+)
+
+# Raum 6 (Finale)
+if st.session_state["raum6_offen"]:
+    st.success("🏆 Du hast alle Räume der Pyramide durchquert. Du trittst hinaus ins Licht der Wüste. Herzlichen Glückwunsch!")
+    st.balloons()
+
 
