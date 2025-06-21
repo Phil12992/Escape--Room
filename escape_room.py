@@ -12,11 +12,11 @@ raeume = {
             "Wie heißt das altägyptische Buch der Toten?"
         ],
         "antworten": [
-            {"ra", "re", "sonnengott"},   # für erste Frage
-            {"3", "drei"},                # zweite Frage
-            {"totenbuch", "buch der toten"} # dritte Frage
+            {"ra", "re", "sonnengott"},
+            {"3", "drei"},
+            {"totenbuch", "buch der toten"}
         ],
-        "codes": ["3", "7", "9"]  # richtige Ziffern pro Frage
+        "codes": ["3", "7", "9"]
     },
     2: {
         "name": "Raum 2 – Grabkammer der Schatten",
@@ -66,7 +66,7 @@ for i, frage in enumerate(raeume[raum_nr]["fragen"]):
 alle_richtig = True
 for ua, ra in zip(antworten_user, raeume[raum_nr]["antworten"]):
     if any(schluesselwort in ua for schluesselwort in ra):
-        # richtige Antwort
+        # richtig
         pass
     else:
         alle_richtig = False
@@ -87,7 +87,13 @@ if st.button("Tür öffnen"):
         if alle_richtig:
             if code_versuch == "".join(raeume[raum_nr]["codes"]):
                 st.success("✅ Die Tür öffnet sich! Weiter zum nächsten Raum.")
-                st.session_state.aktueller_raum += 1
+                # Nur hochzählen, wenn Raum noch nicht das letzte ist
+                if st.session_state.aktueller_raum < len(raeume):
+                    st.session_state.aktueller_raum += 1
+                # Inputs zurücksetzen
+                for i in range(3):
+                    st.session_state[f"raum{raum_nr}_frage{i}"] = ""
+                st.session_state[f"raum{raum_nr}_codeeingabe"] = ""
                 st.experimental_rerun()
             else:
                 st.error("❌ Falscher Code. Versuch es noch einmal.")
@@ -97,6 +103,7 @@ if st.button("Tür öffnen"):
 if st.session_state.aktueller_raum > len(raeume):
     st.balloons()
     st.success("🎉 Glückwunsch! Du hast alle Räume des ägyptischen Escape Rooms erfolgreich gelöst!")
+
 
 
 
