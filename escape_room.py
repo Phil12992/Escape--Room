@@ -16,7 +16,7 @@ raeume = {
             {"3", "drei"},                # zweite Frage
             {"totenbuch", "buch der toten"} # dritte Frage
         ],
-        "code": "379"
+        "codes": ["3", "7", "9"]  # richtige Ziffern pro Frage
     },
     2: {
         "name": "Raum 2 – Grabkammer der Schatten",
@@ -30,7 +30,7 @@ raeume = {
             {"papyrus"},
             {"horus", "auge des horus"}
         ],
-        "code": "538"
+        "codes": ["5", "3", "8"]
     },
     3: {
         "name": "Raum 3 – Die Halle der Spiegel",
@@ -44,7 +44,7 @@ raeume = {
             {"thot"},
             {"siegelbruch", "opfergabe"}
         ],
-        "code": "439"
+        "codes": ["4", "3", "9"]
     }
 }
 
@@ -56,39 +56,47 @@ raum_nr = st.session_state.aktueller_raum
 st.header(raeume[raum_nr]["name"])
 
 antworten_user = []
+richtig_zahlen = []
 
 for i, frage in enumerate(raeume[raum_nr]["fragen"]):
     antwort = st.text_input(f"Frage {i+1}: {frage}", key=f"raum{raum_nr}_frage{i}")
     antworten_user.append(antwort.strip().lower())
 
-def pruefe_antworten(user_antworten, richtige_antworten):
-    code = ""
-    for ua, ra in zip(user_antworten, richtige_antworten):
-        if any(schluesselwort in ua for schluesselwort in ra):
-            # Wenn richtig, eine Ziffer aus der Reihenfolge 3,7,9,5,3,8... nehmen (nur Beispiel)
-            # Hier einfach 3,7,9 für Raum 1, 5,3,8 für Raum 2 etc. (hart kodiert)
-            pass
-        else:
-            return None  # mindestens eine Antwort falsch
-    # Wenn alle richtig, Code aus raum info zurückgeben
-    return raeume[raum_nr]["code"]
+# Prüfe Antworten und baue Code
+alle_richtig = True
+for ua, ra in zip(antworten_user, raeume[raum_nr]["antworten"]):
+    if any(schluesselwort in ua for schluesselwort in ra):
+        # richtige Antwort
+        pass
+    else:
+        alle_richtig = False
+
+if alle_richtig and all(antworten_user):
+    code_anzeige = "".join(raeume[raum_nr]["codes"])
+    st.success(f"Dein zusammengesetzter Türcode lautet: **{code_anzeige}**")
+else:
+    if any(antworten_user):
+        st.info("Die Antworten sind noch nicht alle korrekt oder vollständig.")
 
 code_versuch = st.text_input("Gib den 3-stelligen Türcode ein:", key=f"raum{raum_nr}_codeeingabe")
 
 if st.button("Tür öffnen"):
-    code_errechnet = pruefe_antworten(antworten_user, raeume[raum_nr]["antworten"])
-    if code_errechnet is None:
-        st.error("Mindestens eine Antwort ist falsch. Überprüfe deine Eingaben.")
+    if not all(antworten_user):
+        st.error("Bitte beantworte alle Fragen, bevor du den Code eingibst.")
     else:
-        if code_versuch == code_errechnet:
-            st.success("✅ Die Tür öffnet sich! Weiter zum nächsten Raum.")
-            st.session_state.aktueller_raum += 1
-            st.experimental_rerun()
+        if alle_richtig:
+            if code_versuch == "".join(raeume[raum_nr]["codes"]):
+                st.success("✅ Die Tür öffnet sich! Weiter zum nächsten Raum.")
+                st.session_state.aktueller_raum += 1
+                st.experimental_rerun()
+            else:
+                st.error("❌ Falscher Code. Versuch es noch einmal.")
         else:
-            st.error("❌ Falscher Code. Versuch es noch einmal.")
+            st.error("Mindestens eine Antwort ist falsch. Überprüfe deine Eingaben.")
 
 if st.session_state.aktueller_raum > len(raeume):
     st.balloons()
     st.success("🎉 Glückwunsch! Du hast alle Räume des ägyptischen Escape Rooms erfolgreich gelöst!")
+
 
 
