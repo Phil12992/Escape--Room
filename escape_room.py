@@ -1,151 +1,87 @@
 import streamlit as st
 
-st.set_page_config(page_title="🦂 Tempel der Prüfungen", page_icon="🗝️")
+st.set_page_config(page_title="🌺 Ägyptischer Escape Room", page_icon="🛡️")
 
-st.title("🏺 Tempel der Prüfungen – Ein ägyptisches Escape-Rätsel")
+st.title(":classical_building: Ägyptischer Escape Room")
 
-# Session-State initialisieren
-if "raum" not in st.session_state:
-    st.session_state.raum = 1
-if "schlüssel" not in st.session_state:
-    st.session_state.schlüssel = []
+st.markdown("""
+Willkommen im mystischen Escape Room des alten Ägyptens.  
+In jedem der 5 Räume erwarten dich drei Prüfungen.  
+Wähle in jeder Prüfung die **richtige Antwort** – sie ergibt eine **Ziffer**.  
+Setze am Ende alle drei Ziffern zum **Türcode** zusammen.
+""")
 
-# Hilfsfunktion: Fortschritt pro Raum
-def init_raum(raum_nummer):
-    st.session_state[f"r{raum_nummer}_score"] = 0
-    st.session_state[f"r{raum_nummer}_solved"] = [False, False, False]
+# ============================
+# Hilfsfunktionen
+# ============================
+def pruefung(name, frage, antworten, key):
+    with st.expander(name):
+        st.markdown(frage)
+        return st.radio("Wähle eine Antwort:", antworten, key=key)
 
-if f"r{st.session_state.raum}_score" not in st.session_state:
-    init_raum(st.session_state.raum)
-
-# ---------- RAUM 1 ----------
-if st.session_state.raum == 1:
-    st.subheader("🧮 Raum 1: Die Halle der Zahlen")
-    st.markdown("Wände voller Hieroglyphen. Eine steinerne Tafel leuchtet in mattem Gold.")
-
-    # RÄTSEL 1
-    if not st.session_state.r1_solved[0]:
-        q1 = st.text_input("🔢 Rätsel 1: Was ist das Ergebnis von 12 - (2 × 5)?", key="r1q1")
-        if q1.strip() == "2":
-            st.success("Das Fragment `𓂀` erscheint.")
-            st.session_state.schlüssel.append("𓂀")
-            st.session_state.r1_score += 1
-            st.session_state.r1_solved[0] = True
-        elif q1:
-            st.error("Die Götter lächeln nicht.")
-
-    # RÄTSEL 2
-    if not st.session_state.r1_solved[1]:
-        q2 = st.text_input("📏 Rätsel 2: Ich bin in deinem Kopf, kann jedoch nie berührt werden. Was bin ich?", key="r1q2")
-        if q2.lower().strip() in ["gedanke", "ein gedanke"]:
-            st.success("Das Fragment `𓃰` erscheint.")
-            st.session_state.schlüssel.append("𓃰")
-            st.session_state.r1_score += 1
-            st.session_state.r1_solved[1] = True
-        elif q2:
-            st.error("Die Antwort bleibt verborgen...")
-
-    # RÄTSEL 3
-    if not st.session_state.r1_solved[2]:
-        q3 = st.text_input("🧿 Rätsel 3: ROT13-Verschlüsselung von `Funq vf gur Qnex Orfg`", key="r1q3")
-        if q3.lower().strip() == "shad is the dark best":
-            st.success("Das Fragment `𓆣` erscheint.")
-            st.session_state.schlüssel.append("𓆣")
-            st.session_state.r1_score += 1
-            st.session_state.r1_solved[2] = True
-        elif q3:
-            st.error("Die Götter verstehen deine Worte nicht.")
-
-    # Weiter wenn 3/3 gelöst
-    if st.session_state.r1_score == 3:
-        st.success("Die Tür öffnet sich – du betrittst den nächsten Raum...")
-        if st.button("➡️ Weiter zu Raum 2"):
-            st.session_state.raum = 2
-            init_raum(2)
-
-# ---------- RAUM 2 ----------
-if st.session_state.raum == 2:
-    st.subheader("🔐 Raum 2: Die Kammer der Geheimnisse")
-    st.markdown("In der Mitte ein leuchtendes Auge. Du spürst eine Präsenz.")
-
-    if not st.session_state.r2_solved[0]:
-        q1 = st.text_input("📜 Rätsel 1: Ich spreche ohne Mund und höre ohne Ohren. Was bin ich?", key="r2q1")
-        if q1.lower().strip() == "echo":
-            st.success("Fragment `𓉐` erhalten.")
-            st.session_state.schlüssel.append("𓉐")
-            st.session_state.r2_score += 1
-            st.session_state.r2_solved[0] = True
-        elif q1:
-            st.error("Es hallt zurück – aber falsch.")
-
-    if not st.session_state.r2_solved[1]:
-        q2 = st.text_input("🪞 Rätsel 2: Wenn du mich nennst, bin ich schon vorbei.", key="r2q2")
-        if q2.lower().strip() in ["die stille", "stille"]:
-            st.success("Fragment `𓏏` erhalten.")
-            st.session_state.schlüssel.append("𓏏")
-            st.session_state.r2_score += 1
-            st.session_state.r2_solved[1] = True
-        elif q2:
-            st.error("Die Kammer schweigt…")
-
-    if not st.session_state.r2_solved[2]:
-        q3 = st.text_input("🌒 Rätsel 3: Zwei Väter und zwei Söhne gingen in die Wüste. Sie waren drei. Wie ist das möglich?", key="r2q3")
-        if q3.lower().strip() in ["großvater, vater und sohn", "es sind großvater, vater und sohn"]:
-            st.success("Fragment `𓋹` erhalten.")
-            st.session_state.schlüssel.append("𓋹")
-            st.session_state.r2_score += 1
-            st.session_state.r2_solved[2] = True
-        elif q3:
-            st.error("Zähl nochmal nach...")
-
-    if st.session_state.r2_score == 3:
-        st.success("Ein Geheimgang öffnet sich zwischen den Säulen.")
-        if st.button("➡️ Weiter zu Raum 3"):
-            st.session_state.raum = 3
-            init_raum(3)
-
-# ---------- RAUM 3 ----------
-if st.session_state.raum == 3:
-    st.subheader("⚰️ Raum 3: Die Gruft des Pharaos")
-    st.markdown("Goldene Masken blicken auf dich herab. Es riecht nach Sand und Ewigkeit.")
-
-    if not st.session_state.r3_solved[0]:
-        q1 = st.text_input("🗿 Rätsel 1: Was wiegt mehr – 1 kg Federn oder 1 kg Gold?", key="r3q1")
-        if q1.lower().strip() in ["gleich", "beides gleich viel", "sie wiegen gleich"]:
-            st.success("Fragment `𓁹` erhalten.")
-            st.session_state.schlüssel.append("𓁹")
-            st.session_state.r3_score += 1
-            st.session_state.r3_solved[0] = True
-        elif q1:
-            st.error("Der Pharao runzelt die Stirn...")
-
-    if not st.session_state.r3_solved[1]:
-        q2 = st.text_input("⏳ Rätsel 2: Ich kann fliegen, aber habe keine Flügel. Ich kann weinen, aber habe keine Augen. Was bin ich?", key="r3q2")
-        if q2.lower().strip() == "wolke":
-            st.success("Fragment `𓊽` erhalten.")
-            st.session_state.schlüssel.append("𓊽")
-            st.session_state.r3_score += 1
-            st.session_state.r3_solved[1] = True
-        elif q2:
-            st.error("Das ist nicht ägyptisch genug...")
-
-    if not st.session_state.r3_solved[2]:
-        q3 = st.text_input("🔺 Rätsel 3: Welches Symbol ist auf jeder Seite einer echten ägyptischen Pyramide?", key="r3q3")
-        if q3.lower().strip() == "dreieck":
-            st.success("Letztes Fragment `𓂻` erhalten.")
-            st.session_state.schlüssel.append("𓂻")
-            st.session_state.r3_score += 1
-            st.session_state.r3_solved[2] = True
-        elif q3:
-            st.error("Schau dir die Pyramide nochmal an!")
-
-    if st.session_state.r3_score == 3:
+def pruefe_code(eingabe, korrekt, erfolg_text):
+    if eingabe == korrekt:
+        st.success(erfolg_text)
         st.balloons()
-        st.success("🎉 Du hast alle Schlüsselsegmente gesammelt!")
-        st.markdown("**Geheimer Pharao-Schlüssel:** `" + ''.join(st.session_state.schlüssel) + "`")
-        st.markdown("🏆 **Du entkommst dem Tempel – und nimmst den Schatz mit.**")
+        return True
+    else:
+        st.error("❌ Falscher Code. Versuche es erneut.")
+        return False
 
-        if st.button("🔁 Neu starten"):
-            for key in st.session_state.keys():
-                del st.session_state[key]
+# ============================
+# Raum 1: Halle der Prüfungen
+# ============================
+st.header("🏛️ Raum 1 – Die Halle der Prüfungen")
+a1 = pruefung("📜 Prüfung 1", "**Was symbolisiert der Gott Horus?**", ["1 – Gott des Jenseits", "4 – Gott des Himmels", "7 – Gott der Unterwelt"], "r1_q1")
+a2 = pruefung("🦂 Prüfung 2", "**Wie nennt man die ägyptische Bilderschrift?**", ["2 – Papyrosen", "3 – Hieroglyphen", "8 – Demotisch"], "r1_q2")
+a3 = pruefung("🔺 Prüfung 3", "**Wozu dienten die großen Pyramiden?**", ["5 – Observatorien", "6 – Grabstätten", "9 – Getreidespeicher"], "r1_q3")
+r1_code = st.text_input("🔐 Türcode für Raum 1:", max_chars=3, key="r1_code")
+if st.button("✅ Code prüfen für Raum 1"):
+    pruefe_code(r1_code, "436", "🔓 Die Tür gleitet zur Seite. Du betrittst Raum 2.")
+
+# ============================
+# Raum 2: Grabkammer der Schatten
+# ============================
+st.header("🏺 Raum 2 – Die Grabkammer der Schatten")
+b1 = pruefung("🐍 Prüfung 1", "**Welches Tier steht für Wiedergeburt?**", ["1 – Krokodil", "5 – Skarabäus", "7 – Katze"], "r2_q1")
+b2 = pruefung("🧱 Prüfung 2", "**Welches Material nutzten die Ägypter für Schriftrollen?**", ["3 – Papyrus", "6 – Ton", "9 – Leder"], "r2_q2")
+b3 = pruefung("👁 Prüfung 3", "**Wessen Auge symbolisierte Schutz?**", ["2 – Anubis", "4 – Osiris", "8 – Horus"], "r2_q3")
+r2_code = st.text_input("🔐 Türcode für Raum 2:", max_chars=3, key="r2_code")
+if st.button("✅ Code prüfen für Raum 2"):
+    pruefe_code(r2_code, "538", "🔓 Schatten lösen sich. Der Weg zu Raum 3 ist frei.")
+
+# ============================
+# Raum 3: Die Halle der Spiegel
+# ============================
+st.header("🪞 Raum 3 – Die Halle der Spiegel")
+c1 = pruefung("⚖️ Prüfung 1", "**Was wiegt das Herz der Verstorbenen in der Unterwelt?**", ["2 – Mehr als eine Feder", "4 – Gleich viel wie die Feder", "6 – Weniger als eine Feder"], "r3_q1")
+c2 = pruefung("🔊 Prüfung 2", "**Wer ist der Gott der Weisheit?**", ["3 – Thot", "5 – Bastet", "7 – Seth"], "r3_q2")
+c3 = pruefung("🔓 Prüfung 3", "**Wie öffnete man Grabkammern?**", ["1 – Mit einem Goldcode", "8 – Mit einem Siegelbruch", "9 – Mit einer Opfergabe"], "r3_q3")
+r3_code = st.text_input("🔐 Türcode für Raum 3:", max_chars=3, key="r3_code")
+if st.button("✅ Code prüfen für Raum 3"):
+    pruefe_code(r3_code, "438", "🔓 Die Spiegel verschwinden – du kannst Raum 4 betreten.")
+
+# ============================
+# Raum 4: Kammer der Elemente
+# ============================
+st.header("🌪 Raum 4 – Die Kammer der Elemente")
+d1 = pruefung("🔥 Prüfung 1", "**Welches Element symbolisiert Macht?**", ["2 – Wasser", "6 – Feuer", "7 – Sand"], "r4_q1")
+d2 = pruefung("💨 Prüfung 2", "**Womit segelten ägyptische Boote?**", ["1 – Sonnenenergie", "3 – Wind", "5 – Kamele"], "r4_q2")
+d3 = pruefung("🌊 Prüfung 3", "**Welcher Fluss war heilig?**", ["4 – Nil", "8 – Tigris", "9 – Euphrat"], "r4_q3")
+r4_code = st.text_input("🔐 Türcode für Raum 4:", max_chars=3, key="r4_code")
+if st.button("✅ Code prüfen für Raum 4"):
+    pruefe_code(r4_code, "634", "🔓 Die vier Elemente beruhigen sich – Raum 5 liegt vor dir.")
+
+# ============================
+# Raum 5: Halle der Sterne
+# ============================
+st.header("🌌 Raum 5 – Die Halle der Sterne")
+e1 = pruefung("🌠 Prüfung 1", "**Welches Sternbild war heilig für die Ägypter?**", ["3 – Orion", "6 – Stier", "9 – Jungfrau"], "r5_q1")
+e2 = pruefung("🔭 Prüfung 2", "**Was war die Funktion der Sternkarten?**", ["2 – Navigation", "4 – Ackerplanung", "7 – Grabgestaltung"], "r5_q2")
+e3 = pruefung("🌙 Prüfung 3", "**Wer war die Himmelsgöttin?**", ["1 – Isis", "5 – Nut", "8 – Maat"], "r5_q3")
+r5_code = st.text_input("🔐 Türcode für Raum 5:", max_chars=3, key="r5_code")
+if st.button("✅ Code prüfen für Raum 5"):
+    if pruefe_code(r5_code, "324", "🎉 Du hast alle Prüfungen des Tempels bestanden!"):
+        st.balloons()
+        st.success("🏆 Glückwunsch! Du hast den ägyptischen Escape Room gemeistert.")
 
