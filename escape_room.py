@@ -17,7 +17,7 @@ Pass auf: Nur wenn der Code stimmt, öffnet sich die Tür zum nächsten Raum!
 # =============================
 raeume = {
 
-    2: {
+    1: {
         "name": "Grabkammer der Schatten",
         "raetsel": [
             {
@@ -35,7 +35,7 @@ raeume = {
         ],
         "code": "245",
     },
-    3: {
+    2: {
         "name": "Halle der Spiegel",
         "raetsel": [
             {
@@ -53,7 +53,7 @@ raeume = {
         ],
         "code": "121",
     },
-    4: {
+    3: {
         "name": "Kammer der Elemente",
         "raetsel": [
             {
@@ -71,7 +71,7 @@ raeume = {
         ],
         "code": "454",
     },
-    5: {
+    4: {
         "name": "Halle der Sterne",
         "raetsel": [
             {
