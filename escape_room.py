@@ -16,24 +16,7 @@ Pass auf: Nur wenn der Code stimmt, öffnet sich die Tür zum nächsten Raum!
 # Räume und Rätsel-Daten
 # =============================
 raeume = {
-    1: {
-        "name": "Halle der Prüfungen",
-        "raetsel": [
-            {
-                "frage": "Wie viele Seiten hat eine klassische Pyramide?",
-                "antwort": 4
-            },
-            {
-                "frage": "Wie viele Jahre dauerte ungefähr der Bau der großen Pyramide von Gizeh?",
-                "antwort": 20
-            },
-            {
-                "frage": "Wie viele Hauptgötter gab es im alten Ägypten (ungefähr)?",
-                "antwort": 3
-            },
-        ],
-        "code": "423",
-    },
+
     2: {
         "name": "Grabkammer der Schatten",
         "raetsel": [
